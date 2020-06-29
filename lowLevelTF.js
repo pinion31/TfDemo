@@ -4,46 +4,6 @@ require('@tensorflow/tfjs-node');
 
 const tf = require('@tensorflow/tfjs')
 
-const data = {
-  chris: {
-    I: 5,
-    II: 3,
-    III: 2,
-    IV: 4,
-    V: 4,
-    VI: 3,
-    VII: 5,
-  },
-  nicole: {
-    I: 1,
-    II: 3,
-    III: 3,
-    IV: 2,
-    V: 2,
-    VI: 2,
-    VII: 1,
-  },
-  lucy: {
-    I: 5,
-    II: 3,
-    III: 4,
-    IV: 4,
-    V: 5,
-    VI:5,
-    VII: 5,
-  },
-  mini: {
-    I: 3,
-    II: 3,
-    III: 4,
-    IV: null,
-    V: 3,
-    VI: 2,
-    VII: 2,
-  },
-};
-
-
 const getDeviation = (tensor => {
   const avgs = tensor.sum(1).div(tensor.shape[1]).expandDims(1);
   return tensor.sub(avgs);

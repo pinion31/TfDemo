@@ -1,0 +1,4 @@
+Feature Set: RGB values
+Labels: Categories(redish, greenish, etc)
+Normally you would split the data and use 80%-90% of data to train the model.
+Then 10%-20% to verify your model
