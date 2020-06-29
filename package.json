@@ -1,0 +1,22 @@
+{
+  "name": "tfdemo",
+  "version": "1.0.0",
+  "description": "demo for tensorflow",
+  "main": "lowLevelTF.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pinion31/TfDemo.git"
+  },
+  "author": "Chris Cantu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pinion31/TfDemo/issues"
+  },
+  "homepage": "https://github.com/pinion31/TfDemo#readme",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^2.0.1"
+  }
+}
