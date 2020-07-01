@@ -38,13 +38,13 @@ const setup = ()  => {
   return { xs, ys };
 }
 
-async function train(model, xs, ys) {
-  await model.fit(xs, ys, {
+async function train(model, featureSet, labelSet) {
+  await model.fit(featureSet, labelSet, {
+    epochs: 10, // how many iterations where it tries to make predictions
     shuffle: true,
-    validationSplit: 0.1,
-    epochs: 10,
+    validationSplit: 0.1, // represents the fraction of the data to be reserved for validation
     callbacks: {
-      onEpochEnd: (epoch, logs) => {
+      onEpochEnd: (epoch, logs) => { // similar to lifecycle methods
         console.log(epoch);
       },
       onBatchEnd: async (batch, logs) => {
@@ -52,7 +52,7 @@ async function train(model, xs, ys) {
       },
       onTrainEnd: () => {
         istraining = false;
-        console.log('finished');
+        console.log('finished training');
       },
     },
   });
@@ -60,7 +60,7 @@ async function train(model, xs, ys) {
 
 function buildModel() {
   let md = tf.sequential();
-  // input => nodes layers => output
+  // input layer => dense layers => output layer
 
 
   const nodes = tf.layers.dense({
@@ -71,7 +71,9 @@ function buildModel() {
 
   const output = tf.layers.dense({
     units: 9, 
-    //[0,0,0,1,0,0,0,0,0] => [
+    //[0,0,0,1,0,0,0,0,0] => 
+    //corresponds to our labellist
+    //[
     //   'red-ish',
     //   'green-ish',
     //   'blue-ish',
@@ -87,8 +89,8 @@ function buildModel() {
   md.add(nodes);
   md.add(output);
 
-  const LEARNING_RATE = 0.25;
-  const optimizer = tf.train.sgd(LEARNING_RATE);
+  const LEARNING_RATE = 0.25; // rate of adjustment
+  const optimizer = tf.train.sgd(LEARNING_RATE); // stochastic gradient descent
 
   md.compile({
     optimizer: optimizer,
@@ -99,7 +101,8 @@ function buildModel() {
   return md
 }
 
-const trainAndRunModel = async () => {
+const buildAndTrainModel = async () => {
+  // split into feature and label
   const { xs, ys } = setup(); // setup data
   const model = buildModel(); // build Model first
   await train(model, xs, ys); // setup training for model
@@ -108,15 +111,13 @@ const trainAndRunModel = async () => {
 }
 
 
-trainAndRunModel().then((model) => {
-  console.log('finished training');
+buildAndTrainModel().then((model) => {
   const input = tf.tensor2d([
     [0, 255, 0] //(r,g,b)
   ]);
-  let predictedResult = model.predict(input);
-  let argMax = predictedResult.argMax(1);
-  let index = argMax.dataSync()[0];
-  console.log('Color:')
-  let label = labelList[index];
+  const predictedResult = model.predict(input);
+  const argMax = predictedResult.argMax(1);
+  const index = argMax.dataSync()[0];
+  const label = labelList[index];
   console.log('Color:', label)
 });

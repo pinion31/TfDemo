@@ -2,24 +2,28 @@ require('@tensorflow/tfjs-node');
 // require('@tensorflow/tfjs-node-gpu');
 // maybe another lib required
 
+// Simple recommendation system using KNN algorithm
+
 const tf = require('@tensorflow/tfjs')
 
-const getDeviation = (tensor => {
-  const avgs = tensor.sum(1).div(tensor.shape[1]).expandDims(1);
-  return tensor.sub(avgs);
-});
+const potentialCollectionsToRecommend = [
+  'collection1_id',
+  'collection2_id',
+  'collection3_id',
+  'collection4_id',
+  'collection5_id',
+  'collection6_id']
+];
 
-
-const potentialCollectionsToRecommend = ['collection1_id', 'collection2_id', 'collection3_id', 'collection4_id', 'collection5_id', 'collection6_id']
 // ratings that the test user has in common
 // 5, 6 shape (can run commonRatings.shape )
 const commonCollectionsRated = tf.tensor([
   // each index/column represents a collection
-  [1,3,4,2,3,4], // user 1 - rating for 6 collections
-  [3,5,2,3,2,1], // user 2
-  [5,2,4,4,5,3], // user 3
-  [4,3,5,4,4,3], // user 4
-  [2,2,2,5,3,2], // user 5
+  [1,3,4,2,3,4], // feature user 1 - rating for 6 collections
+  [3,5,2,3,2,1], // feature user 2
+  [5,2,4,4,5,3], // feature user 3
+  [4,3,5,4,4,3], // feature user 4
+  [2,2,2,5,3,2], // feature user 5
 ]);
 
 //1, 6 shape -- assuming user has rated 2 or more collections
@@ -28,25 +32,25 @@ const userInputData = tf.tensor([
   [3,2,4,4,5,2] // user input
 ]);
 
-// getDeviation(commonCollectionsRated).print();
 // rating that the test user does not have in common
 // 5,2 shape
-const uncommonCollectionsRated = tf.tensor([
-  [3,4,4,1,5,2,3,2,1], // user 1
-  [5,3,3,4,2,2,1,2,1], // user 2
-  [5,3,5,5,4,4,3,3,2], // user 3
-  [4,3,3,3,4,5,1,3,3], // user 4
-  [2,2,3,3,1,1,3,4,2], // user 5
+// Another tensor of possible recommendations
+const possibleRecommendations = tf.tensor([
+  [3,4,4,1,5,2,3,2,1], // feature user 1
+  [5,3,3,4,2,2,1,2,1], // feature user 2
+  [5,3,5,5,4,4,3,3,2], // feature user 3
+  [4,3,3,3,4,5,1,3,3], // feature user 4
+  [2,2,3,3,1,1,3,4,2], // feature user 5
 ]);
 
-const unabiasedCommonCollectionsRated = getDeviation(commonCollectionsRated);
-const unabiasedUserInputData = getDeviation(userInputData);
-const unabiasedUncommonCollectionsRated = getDeviation(uncommonCollectionsRated);
+
+
+
 
 // chaining operations 
 const result = 
-    unabiasedCommonCollectionsRated
-    .sub(unabiasedUserInputData) // x2 - x1 or y1- y2
+    commonCollectionsRated
+    .sub(userInputData) // x2 - x1 or y1- y2
     .pow(2) //(x2 - x1)**2
     .sum(1) // 1 for horizontal axis, 0 or blank for vertical axis
     .pow(.5) // squaring the result 
@@ -59,7 +63,7 @@ const result =
     //                                  [1.8],               [4,3,3,3,4,5,1,3,3],              [1.8,4,3,3,3,4,5,1,3,3], 
     //                                  [2.7],               [2,2,3,3,1,1,3,4,2],              [2.7,2,2,3,3,1,1,3,4,2],
     //                                  ]                  ]                                 ]
-    .concat(unabiasedUncommonCollectionsRated, 1) // 1 along horizontal axis
+    .concat(possibleRecommendations, 1) // 1 along horizontal axis
     .unstack() // converts to array of tensors
     // arraySync is synchronous; fetch from values from CPU or GPU is an asynchronous
     // pull array and fetching first value with a.arraySync()[0]
@@ -78,12 +82,3 @@ const result =
   const collectionToRecommend = potentialCollectionsToRecommend[index];
   console.log('collectionToRecommend', `\x1b[33m${collectionToRecommend}`);
   console.log('\x1b[37m');
-    
-
-  
-
-
-//result.print();
-// console.log('result', result.print());
-
-
